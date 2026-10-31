@@ -1,0 +1,46 @@
+name: build check origin shader
+
+# Cek otomatis tiap PR / push ke main: semua platform harus bisa dikompilasi
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: check-${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: android, os: ubuntu-latest }
+          - { platform: ios, os: ubuntu-latest }
+          - { platform: multiplatform, os: windows-2022 }
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - uses: actions/cache@v4
+        with:
+          key: tools-${{ runner.os }}-latest
+          path: |
+            tools/shaderc
+            tools/shaderc-win-x64.exe
+            tools/materials
+      - run: pip install -r requirements.txt
+      - run: python tools/build.py setup
+      - run: python tools/build.py pack -p ${{ matrix.platform }} -v 99
+      - uses: actions/upload-artifact@v4
+        with:
+          name: check-${{ matrix.platform }}
+          path: build/*.mcpack
+          retention-days: 3
+          if-no-files-found: error

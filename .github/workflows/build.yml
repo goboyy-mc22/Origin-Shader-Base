@@ -1,0 +1,96 @@
+name: build origin shader
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Target platform'
+        required: true
+        default: 'Multi-platform'
+        type: choice
+        options:
+          - Android
+          - iOS
+          - Windows
+          - Multi-platform
+          - All
+      subversion:
+        description: 'Patch version, e.g. 5 -> v0.1.5 (kosongkan = pakai pack_config.json)'
+        required: false
+        default: ''
+        type: string
+      base_materials:
+        description: 'Versi serialized-materials (latest atau mis. v26.60)'
+        required: false
+        default: 'latest'
+        type: string
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set.outputs.matrix }}
+    steps:
+      - id: set
+        env:
+          PLATFORM: ${{ inputs.platform }}
+        run: |
+          # Direct3D (Windows & Multi-platform) hanya bisa dikompilasi di runner Windows
+          A='{"platform":"android","os":"ubuntu-latest"}'
+          I='{"platform":"ios","os":"ubuntu-latest"}'
+          W='{"platform":"windows","os":"windows-2022"}'
+          M='{"platform":"multiplatform","os":"windows-2022"}'
+          case "$PLATFORM" in
+            Android)        L="$A" ;;
+            iOS)            L="$I" ;;
+            Windows)        L="$W" ;;
+            Multi-platform) L="$M" ;;
+            All)            L="$A,$I,$W,$M" ;;
+            *) echo "Unknown platform: $PLATFORM"; exit 1 ;;
+          esac
+          echo "matrix={\"include\":[$L]}" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: plan
+    name: build-${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - uses: actions/cache@v4
+        with:
+          key: tools-${{ runner.os }}-${{ inputs.base_materials }}
+          path: |
+            tools/shaderc
+            tools/shaderc-win-x64.exe
+            tools/materials
+
+      - run: pip install -r requirements.txt
+
+      - name: Setup shaderc + base materials
+        run: |
+          if [ "${{ inputs.base_materials }}" = "latest" ] || [ -z "${{ inputs.base_materials }}" ]; then
+            python tools/build.py setup
+          else
+            python tools/build.py setup "${{ inputs.base_materials }}"
+          fi
+
+      - name: Build pack (${{ matrix.platform }})
+        run: python tools/build.py pack -p ${{ matrix.platform }} -v "${{ inputs.subversion }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: origin-shader-base-${{ matrix.platform }}
+          path: build/*.mcpack
+          if-no-files-found: error
