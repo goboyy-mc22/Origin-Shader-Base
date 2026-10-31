@@ -10,8 +10,9 @@ assets/              pack_icon.png and other resource pack files
 include/             bgfx and MinecraftRenderer.Materials headers
 source/
   Origin/
+    Origin.h         single include for materials
     Configuration.h  shader options (fog strength, ...)
-    functions/       reusable shader functions (Core.h, Sky.h, World.h)
+    functions/       shader functions, one file per topic
     pack_config.toml pack name, version, UUIDs and material list
   materials/         material sources and project.json (build profiles)
 tools/               build tool (setup, mats, pack)
