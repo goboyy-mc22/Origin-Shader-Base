@@ -7,9 +7,9 @@
 #include <Origin/functions/Common.h>
 
 // Blend a color towards the fog color. fogAmount is 0.0 (clear) to 1.0 (fully fogged).
-// The result respects ORIGIN_FOG_STRENGTH from Configuration.h.
+// The result respects ORIGIN_FOG_STRENGTH and ORIGIN_FOG_TINT from Configuration.h.
 vec3 originApplyFog(vec3 color, vec3 fogColor, float fogAmount) {
-    return mix(color, fogColor, clamp(fogAmount * ORIGIN_FOG_STRENGTH, 0.0, 1.0));
+    return mix(color, fogColor * ORIGIN_FOG_TINT, clamp(fogAmount * ORIGIN_FOG_STRENGTH, 0.0, 1.0));
 }
 
 // Linear fog: 0.0 before start, 1.0 after end.

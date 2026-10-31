@@ -8,9 +8,9 @@
 
 // ---- Light map and occlusion --------------------------------------
 
-// Apply the light map sample (block light and sky light) to a surface color.
+// Apply the light map sample (block light and sky light) to a surface color. Tint from ORIGIN_LIGHT_TINT.
 vec3 originApplyLightmap(vec3 color, vec3 lightmap) {
-    return color * lightmap;
+    return color * (lightmap * ORIGIN_LIGHT_TINT);
 }
 
 // Ambient occlusion: strength 0.0 = none, 1.0 = full vertex occlusion.

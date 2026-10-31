@@ -76,15 +76,35 @@ Unused functions are removed by the shader compiler, so including everything cos
 | `Common.h` | constants, `originLuma`, `originSq`, `originRemap` |
 | `Noise.h` | `originHash`, `originNoise`, `originFbm` |
 | `Color.h` | gamma conversion, saturation, contrast, tonemapping, `originGrade` |
-| `Sky.h` | sky gradient, horizon and sun glow, sun and moon, stars |
+| `Sky.h` | three-band sky color (zenith, horizon, edge), horizon and sun glow, sun and moon, stars |
 | `Clouds.h` | cloud color, procedural density, shading |
 | `Fog.h` | fog blending, linear and exponential fog |
 | `Lighting.h` | light map, ambient occlusion, point light, entity overlay, enchantment glint |
 | `Water.h` | fresnel, depth tint, reflection |
-| `Wave.h` | water wave height, wind sway for plants and leaves |
+| `Wave.h` | water waves, leaf sway and the checks that pick which vertices move |
 | `Weather.h` | rain and snow color and light |
 
-Every function is compiled into the materials. Most are applied already (fog, lighting, sky, sun and moon, stars, clouds, weather, entity overlay). The color grading, water and wave functions are not applied yet, so rendering stays vanilla until you use them.
+Every function is compiled into the materials. Sky, fog, lighting, sun and moon, stars, clouds, weather and entity overlay are applied already. Water waves and leaf sway are wired into `RenderChunk` but switched off by default. The color grading and water shading functions are not applied yet. With the defaults, rendering is vanilla.
+
+## Configuration
+
+All settings live in `source/Origin/Configuration.h`:
+
+| Group | Settings |
+|-------|----------|
+| Sky | `ORIGIN_SKY_ZENITH_TINT`, `ORIGIN_SKY_HORIZON_TINT`, `ORIGIN_SKY_EDGE_TINT`, `ORIGIN_SKY_HORIZON_POSITION`, sun/moon and star brightness |
+| Fog | `ORIGIN_FOG_STRENGTH`, `ORIGIN_FOG_TINT` |
+| Clouds | `ORIGIN_CLOUD_TINT`, `ORIGIN_CLOUD_OPACITY` |
+| Lighting | `ORIGIN_LIGHT_TINT` |
+| Weather | `ORIGIN_RAIN_OPACITY` |
+| Water waves | `ORIGIN_ENABLE_WATER_WAVES`, `ORIGIN_WATER_WAVE_HEIGHT`, `ORIGIN_WATER_WAVE_SPEED`, `ORIGIN_WATER_WAVE_SCALE` |
+| Leaf sway | `ORIGIN_ENABLE_LEAF_SWAY`, `ORIGIN_LEAF_SWAY_STRENGTH`, `ORIGIN_LEAF_SWAY_SPEED` |
+| Distance | `ORIGIN_WAVE_RANGE` (waves and sway fade out at this distance) |
+| Grading | `ORIGIN_EXPOSURE`, `ORIGIN_SATURATION`, `ORIGIN_CONTRAST` |
+
+Colors are tints applied on top of the colors the game provides, so `vec3(1.0, 1.0, 1.0)` means unchanged. To enable water waves or leaf sway, remove the `//` in front of the matching `#define`. You can also try them without editing the file: `python tools mats -p android -s ORIGIN_ENABLE_WATER_WAVES ORIGIN_ENABLE_LEAF_SWAY`.
+
+Leaf sway moves vertices of full tinted cubes in the alpha-tested pass (tree leaves). Leaves without a biome tint do not sway. Water waves move vertices of translucent water. Both rely on checks in `Wave.h` that are not tested in game yet.
 
 ## GitHub Actions
 

@@ -41,7 +41,8 @@ def main() -> None:
                                  help="generate new pack and module UUIDs in pack_config.toml")
 
     mats_parser.add_argument("-m", default=[], nargs="+", help="materials to build, e.g. Sky RenderChunk")
-    mats_parser.add_argument("-s", default="", help="extra macro define to compile with, e.g. ORIGIN_DEBUG")
+    mats_parser.add_argument("-s", default=[], nargs="+",
+                             help="macros to define, e.g. ORIGIN_ENABLE_WATER_WAVES ORIGIN_ENABLE_LEAF_SWAY")
 
     setup_parser.add_argument("--reset", action="store_true", help="delete all downloaded data first")
     setup_parser.add_argument("--materials-version", default="",

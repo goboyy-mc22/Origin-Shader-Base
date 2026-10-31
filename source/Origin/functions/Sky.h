@@ -8,9 +8,24 @@
 
 // ---- Sky dome -----------------------------------------------------
 
-// Sky dome gradient. horizon is 0.0 at the zenith and 1.0 at the horizon.
-vec4 originSkyGradient(vec4 skyColor, vec4 fogColor, float horizon) {
-    return mix(skyColor, fogColor, horizon);
+// Three-band sky color. t is 0.0 at the zenith and 1.0 at the very bottom of the dome (the edge).
+// The zenith blends into the horizon up to ORIGIN_SKY_HORIZON_POSITION, then the horizon blends into the edge.
+vec3 originSkyColor(vec3 zenith, vec3 horizon, vec3 edge, float t) {
+    float position = max(ORIGIN_SKY_HORIZON_POSITION, 0.0001);
+    vec3 color = mix(zenith, horizon, saturate(t / position));
+    return mix(color, edge, saturate((t - position) / max(1.0 - position, 0.0001)));
+}
+
+// Sky dome color from the colors the game provides: skyColor is the zenith, fogColor is the horizon and edge.
+// The tints from Configuration.h are applied to each band. t is the vertex gradient (0.0 top, 1.0 bottom).
+vec4 originSkyGradient(vec4 skyColor, vec4 fogColor, float t) {
+    vec3 rgb = originSkyColor(
+        skyColor.rgb * ORIGIN_SKY_ZENITH_TINT,
+        fogColor.rgb * ORIGIN_SKY_HORIZON_TINT,
+        fogColor.rgb * ORIGIN_SKY_EDGE_TINT,
+        t
+    );
+    return vec4(rgb, mix(skyColor.a, fogColor.a, t));
 }
 
 // 1.0 when looking at the horizon, 0.0 when looking straight up or down.

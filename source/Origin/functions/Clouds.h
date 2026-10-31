@@ -7,9 +7,9 @@
 #include <Origin/functions/Common.h>
 #include <Origin/functions/Noise.h>
 
-// Final cloud color. Opacity comes from ORIGIN_CLOUD_OPACITY.
+// Final cloud color. Tint and opacity come from Configuration.h.
 vec4 originCloudColor(vec4 color) {
-    return vec4(color.rgb, color.a * ORIGIN_CLOUD_OPACITY);
+    return vec4(color.rgb * ORIGIN_CLOUD_TINT, color.a * ORIGIN_CLOUD_OPACITY);
 }
 
 // Procedural cloud density in [0, 1]. coverage: 0.0 = overcast, 1.0 = clear sky.

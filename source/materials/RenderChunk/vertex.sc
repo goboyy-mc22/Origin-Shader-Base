@@ -34,6 +34,20 @@ void main() {
     color = a_color0;
 #endif
 
+#if defined(ORIGIN_ENABLE_WATER_WAVES) && defined(TRANSPARENT)
+    if (originIsWater(a_color0)) {
+        float waveFade = originWaveFade(length(ViewPositionAndTime.xyz - worldPos));
+        worldPos.y += originWaterWaveOffset(worldPos, ViewPositionAndTime.w) * waveFade;
+    }
+#endif
+
+#if defined(ORIGIN_ENABLE_LEAF_SWAY) && (defined(ALPHA_TEST) || defined(DEPTH_ONLY_ALPHA_TEST))
+    if (originIsTinted(a_color0) && originIsBlockCorner(a_position)) {
+        float swayFade = originWaveFade(length(ViewPositionAndTime.xyz - worldPos));
+        worldPos += originLeafSway(worldPos, ViewPositionAndTime.w) * swayFade;
+    }
+#endif
+
     vec4 fogAndDist = FogAndDistanceControl;
     if (MeshContext.x > 0.5) {
         fogAndDist = vec4(0.99, 1.0, 100000.0, 100000.0);

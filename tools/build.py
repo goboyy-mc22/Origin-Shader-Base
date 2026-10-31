@@ -73,7 +73,7 @@ def run(args) -> None:
     defines = []
     if args.s:
         from lazurite.compiler.macro_define import MacroDefine
-        defines = [MacroDefine.from_string(args.s)]
+        defines = [MacroDefine.from_string(name) for name in args.s]
 
     if not compile_materials(args.p, materials, output_path, defines, strict=args.strict):
         console.print("\nBuild failed.", style="bold red")
