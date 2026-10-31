@@ -1,9 +1,10 @@
 $input v_color0, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
+#include <Origin/functions/Stars.h>
 
 uniform vec4 StarsColor;
 
 void main() {
-    gl_FragColor = vec4(v_color0.rgb * StarsColor.rgb * v_color0.a, v_color0.a);
+    gl_FragColor = originStarColor(v_color0, StarsColor);
 }

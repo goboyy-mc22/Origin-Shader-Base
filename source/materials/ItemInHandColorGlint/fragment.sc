@@ -1,6 +1,7 @@
 $input v_clipPosition, v_color0, v_fog, v_light, v_texcoord0, v_worldPos, v_glintUV
 
 #include <bgfx_shader.sh>
+#include <Origin/functions/Fog.h>
 #include <MinecraftRenderer.Materials/DynamicUtil.dragonh>
 #include <MinecraftRenderer.Materials/FogUtil.dragonh>
 #include <MinecraftRenderer.Materials/GlintUtil.dragonh>
@@ -53,7 +54,7 @@ void main() {
     }
 #endif
 
-    albedo.rgb = applyFog(albedo.rgb, v_fog.rgb, v_fog.a);
+    albedo.rgb = originApplyFog(albedo.rgb, v_fog.rgb, v_fog.a);
     gl_FragColor = albedo;
 #endif
 }

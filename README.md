@@ -70,6 +70,25 @@ diffuse.rgb = originApplyFog(diffuse.rgb, FogColor.rgb, v_fog.a);
 
 Options such as `ORIGIN_FOG_STRENGTH` are set in `source/Origin/Configuration.h`. The defaults match vanilla rendering.
 
+| File | Category | Functions |
+|------|----------|-----------|
+| `Common.h` | Core | constants, `originLuma`, `originSq`, `originRemap` |
+| `Noise.h` | Core | `originHash`, `originNoise`, `originFbm` |
+| `Color.h` | Core | gamma, saturation, contrast, tonemapping, `originGrade` |
+| `Sky.h` | Environment | sky gradient, horizon factor, sun glow |
+| `SunMoon.h` | Environment | sun and moon color |
+| `Stars.h` | Environment | star color, twinkle |
+| `Clouds.h` | Environment | cloud color, procedural density, shading |
+| `Weather.h` | Environment | rain and snow color and light |
+| `Fog.h` | Environment | fog blending, linear and exponential fog |
+| `Water.h` | World | waves, fresnel, depth tint, reflection |
+| `Wind.h` | World | plant and leaf sway |
+| `Lighting.h` | World | light map, ambient occlusion, point light |
+| `Actor.h` | Entities | overlay (hurt flash and similar) |
+| `Glint.h` | Entities | enchantment glint blend |
+
+Sky, SunMoon, Stars, Clouds, Weather, Fog, Lighting and Actor are already used by the materials. Color, Water and Wind are included and compiled but not applied yet, so rendering stays vanilla until you use them.
+
 ## GitHub Actions
 
 - **Build**: open *Actions → Build → Run workflow*, choose Android, iOS, Windows, Multi-platform or All, and download the `.mcpack` from the run's artifacts. The optional *subversion* input sets the patch version. Enable *release* to also get a draft GitHub release with the `.mcpack` files attached as direct downloads.
