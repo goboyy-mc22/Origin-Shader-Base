@@ -16,4 +16,8 @@
 #include <Origin/functions/Wave.h>
 #include <Origin/functions/Weather.h>
 
+#ifdef ORIGIN_ENABLE_LEAF_SWAY
+#error PROBE_LEAF_SWAY_DEFINE_REACHED_SHADER
+#endif
+
 #endif
