@@ -1,7 +1,7 @@
 $input v_color0, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
-#include <Origin/functions/Sky.h>
+#include <Origin/Origin.h>
 
 void main() {
     gl_FragColor = originCloudColor(v_color0);

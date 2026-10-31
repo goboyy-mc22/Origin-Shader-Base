@@ -6,7 +6,7 @@ $input a_color0, a_position, a_texcoord0
 $output v_color0, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
-#include <Origin/functions/Sky.h>
+#include <Origin/Origin.h>
 
 uniform vec4 SkyColor;
 uniform vec4 FogColor;

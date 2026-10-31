@@ -60,23 +60,30 @@ python tools manifest --new-uuids        # generate new pack UUIDs (do this for 
 
 ## Shader functions
 
-Reusable code lives in `source/Origin/functions/` and is shared by the materials:
+Reusable code lives in `source/Origin/functions/`, one file per topic. Materials include everything through a single header:
 
 ```glsl
-#include <Origin/functions/World.h>
+#include <Origin/Origin.h>
 
 diffuse.rgb = originApplyFog(diffuse.rgb, FogColor.rgb, v_fog.a);
 ```
 
-Options such as `ORIGIN_FOG_STRENGTH` are set in `source/Origin/Configuration.h`. The defaults match vanilla rendering.
+Unused functions are removed by the shader compiler, so including everything costs nothing. Options such as `ORIGIN_FOG_STRENGTH` are set in `source/Origin/Configuration.h`, and the defaults match vanilla rendering.
 
 | File | Contents |
 |------|----------|
-| `Core.h` | math helpers, procedural noise (`originNoise`, `originFbm`), color grading and tonemapping |
-| `Sky.h` | sky gradient and sun glow, sun and moon, stars, clouds |
-| `World.h` | fog, lighting, water, wind, weather, entity overlay and enchantment glint |
+| `Common.h` | constants, `originLuma`, `originSq`, `originRemap` |
+| `Noise.h` | `originHash`, `originNoise`, `originFbm` |
+| `Color.h` | gamma conversion, saturation, contrast, tonemapping, `originGrade` |
+| `Sky.h` | sky gradient, horizon and sun glow, sun and moon, stars |
+| `Clouds.h` | cloud color, procedural density, shading |
+| `Fog.h` | fog blending, linear and exponential fog |
+| `Lighting.h` | light map, ambient occlusion, point light, entity overlay, enchantment glint |
+| `Water.h` | fresnel, depth tint, reflection |
+| `Wave.h` | water wave height, wind sway for plants and leaves |
+| `Weather.h` | rain and snow color and light |
 
-Every function is already compiled into the materials. Most are applied (fog, lighting, sky, sun and moon, stars, clouds, weather, entity overlay). The color grading, water and wind functions are included but not applied yet, so rendering stays vanilla until you use them.
+Every function is compiled into the materials. Most are applied already (fog, lighting, sky, sun and moon, stars, clouds, weather, entity overlay). The color grading, water and wave functions are not applied yet, so rendering stays vanilla until you use them.
 
 ## GitHub Actions
 
