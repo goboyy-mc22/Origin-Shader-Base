@@ -1,6 +1,8 @@
-name: build check origin shader
+name: Build Check
 
-# Cek otomatis tiap PR / push ke main: semua platform harus bisa dikompilasi
+# Verifies that every material compiles for all platforms (Android, iOS and Windows).
+# Nothing is packaged or uploaded.
+
 on:
   pull_request:
     branches: [main]
@@ -8,39 +10,34 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   check:
-    name: check-${{ matrix.platform }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { platform: android, os: ubuntu-latest }
-          - { platform: ios, os: ubuntu-latest }
-          - { platform: multiplatform, os: windows-2022 }
+    name: Compile all platforms
+    runs-on: windows-2022
     defaults:
       run:
         shell: bash
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: pip
+
       - uses: actions/cache@v4
         with:
-          key: tools-${{ runner.os }}-latest
-          path: |
-            tools/shaderc
-            tools/shaderc-win-x64.exe
-            tools/materials
-      - run: pip install -r requirements.txt
-      - run: python tools/build.py setup
-      - run: python tools/build.py pack -p ${{ matrix.platform }} -v 99
-      - uses: actions/upload-artifact@v4
-        with:
-          name: check-${{ matrix.platform }}
-          path: build/*.mcpack
-          retention-days: 3
-          if-no-files-found: error
+          path: tools/data
+          key: tools-data-${{ runner.os }}-${{ hashFiles('tools/util.py') }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Setup build tools
+        run: python tools setup
+
+      - name: Compile materials
+        run: python tools mats -p multiplatform --strict

@@ -1,7 +1,7 @@
 {
   "base_profile": {
     "platforms": ["ESSL_310"],
-    "merge_source": ["../../tools/materials"],
+    "merge_source": ["../../tools/data/materials"],
     "include_patterns": [
       "Actor",
       "ActorGlint",
@@ -18,7 +18,7 @@
       "Weather"
     ],
     "exclude_patterns": [".*", "_*"],
-    "include_search_paths": ["../../include"]
+    "include_search_paths": ["../../source", "../../include"]
   },
   "profiles": {
     "android": {

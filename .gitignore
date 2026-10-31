@@ -1,73 +1,16 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-*.so.*
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# Build directories
+# Build output
 build/
-Build/
-build-*/
 
-# CMake generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-install_manifest.txt
-compile_commands.json
+# Downloaded by `setup` (shaderc compiler, base materials, Termux libs)
+tools/data/
+tools/lib/
 
-# Temporary files
-*.tmp
-*.log
-*.bak
-*.swp
+# Python
+__pycache__/
+*.pyc
 
-# vcpkg
-vcpkg_installed/
-
-# debug information files
-*.dwo
-
-# test output & cache
-Testing/
-.cache/
-
-# downloaded by tools/build.py setup
-tools/shaderc*
-tools/materials/
-tools/.version
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

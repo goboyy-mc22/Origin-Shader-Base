@@ -1,0 +1,39 @@
+name = "Origin Shader Base"
+version = [0, 1, 0]
+min_supported_mc_version = [1, 26, 50]
+description = '''
+§c%w
+§7- A lightweight base shader for Minecraft Bedrock!
+§7%v
+§3https://github.com/goboyy-mc22/Origin-Shader-Base
+''' # %w = loader notice, %v = version and platform
+authors = ["goboyy-mc22"]
+url = "https://github.com/goboyy-mc22/Origin-Shader-Base"
+
+# Generate new UUIDs for your own fork: https://www.uuidgenerator.net/version4
+uuid = "b4d6af79-2505-4186-bc2d-d86c24fdff94"
+module_uuid = "7b37b1c3-5199-4974-9718-0d0edd613298"
+
+materials = [
+    "Actor",
+    "ActorGlint",
+    "ActorMultiTexture",
+    "Clouds",
+    "EndSky",
+    "ItemInHandColor",
+    "ItemInHandColorGlint",
+    "ItemInHandTextured",
+    "RenderChunk",
+    "Sky",
+    "Stars",
+    "SunMoon",
+    "Weather",
+]
+
+# Optional subpacks. Each one recompiles the listed materials with a macro define.
+# Subpacks are shown left to right, the right-most one is enabled by default.
+#
+# [[subpack]]
+# define = "NO_FOG"
+# materials = ["RenderChunk"]
+# description = "No fog effect"

@@ -1,12 +1,12 @@
-name: build origin shader
+name: Build
 
 on:
   workflow_dispatch:
     inputs:
       platform:
-        description: 'Target platform'
+        description: Target platform
         required: true
-        default: 'Multi-platform'
+        default: Multi-platform
         type: choice
         options:
           - Android
@@ -15,44 +15,43 @@ on:
           - Multi-platform
           - All
       subversion:
-        description: 'Patch version, e.g. 5 -> v0.1.5 (kosongkan = pakai pack_config.json)'
+        description: Patch version number, e.g. 5 builds v0.1.5 (empty = use pack_config.toml)
         required: false
-        default: ''
+        default: ""
         type: string
-      base_materials:
-        description: 'Versi serialized-materials (latest atau mis. v26.60)'
-        required: false
-        default: 'latest'
-        type: string
+
+permissions:
+  contents: read
 
 jobs:
   plan:
+    name: Plan
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set.outputs.matrix }}
+      matrix: ${{ steps.select.outputs.matrix }}
     steps:
-      - id: set
+      - id: select
         env:
           PLATFORM: ${{ inputs.platform }}
         run: |
-          # Direct3D (Windows & Multi-platform) hanya bisa dikompilasi di runner Windows
-          A='{"platform":"android","os":"ubuntu-latest"}'
-          I='{"platform":"ios","os":"ubuntu-latest"}'
-          W='{"platform":"windows","os":"windows-2022"}'
-          M='{"platform":"multiplatform","os":"windows-2022"}'
+          # Direct3D shaders (Windows, Multi-platform) can only be compiled on a Windows runner.
+          android='{"profile":"android","os":"ubuntu-latest"}'
+          ios='{"profile":"ios","os":"ubuntu-latest"}'
+          windows='{"profile":"windows","os":"windows-2022"}'
+          multiplatform='{"profile":"multiplatform","os":"windows-2022"}'
           case "$PLATFORM" in
-            Android)        L="$A" ;;
-            iOS)            L="$I" ;;
-            Windows)        L="$W" ;;
-            Multi-platform) L="$M" ;;
-            All)            L="$A,$I,$W,$M" ;;
-            *) echo "Unknown platform: $PLATFORM"; exit 1 ;;
+            Android)        include="$android" ;;
+            iOS)            include="$ios" ;;
+            Windows)        include="$windows" ;;
+            Multi-platform) include="$multiplatform" ;;
+            All)            include="$android,$ios,$windows,$multiplatform" ;;
+            *) echo "Unknown platform: $PLATFORM" >&2; exit 1 ;;
           esac
-          echo "matrix={\"include\":[$L]}" >> "$GITHUB_OUTPUT"
+          echo "matrix={\"include\":[$include]}" >> "$GITHUB_OUTPUT"
 
   build:
+    name: Build ${{ matrix.profile }}
     needs: plan
-    name: build-${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -65,32 +64,30 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: pip
 
       - uses: actions/cache@v4
         with:
-          key: tools-${{ runner.os }}-${{ inputs.base_materials }}
-          path: |
-            tools/shaderc
-            tools/shaderc-win-x64.exe
-            tools/materials
+          path: tools/data
+          key: tools-data-${{ runner.os }}-${{ hashFiles('tools/util.py') }}
 
-      - run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - name: Setup shaderc + base materials
+      - name: Setup build tools
+        run: python tools setup
+
+      - name: Build pack
+        env:
+          SUBVERSION: ${{ inputs.subversion }}
         run: |
-          if [ "${{ inputs.base_materials }}" = "latest" ] || [ -z "${{ inputs.base_materials }}" ]; then
-            python tools/build.py setup
-          else
-            python tools/build.py setup "${{ inputs.base_materials }}"
-          fi
-
-      - name: Build pack (${{ matrix.platform }})
-        run: python tools/build.py pack -p ${{ matrix.platform }} -v "${{ inputs.subversion }}"
+          args=""
+          if [ -n "$SUBVERSION" ]; then args="-v $SUBVERSION"; fi
+          python tools pack -p "${{ matrix.profile }}" --strict $args
 
       - uses: actions/upload-artifact@v4
         with:
-          name: origin-shader-base-${{ matrix.platform }}
+          name: origin-shader-base-${{ matrix.profile }}
           path: build/*.mcpack
           if-no-files-found: error
