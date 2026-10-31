@@ -7,7 +7,7 @@ $output v_clipPosition, v_color0, v_ditheringAndMaskTinting, v_fog, v_lightmapUV
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/TAAUtil.dragonh>
-#include <Origin/functions/Wind.h>
+#include <Origin/functions/World.h>
 
 uniform vec4 RenderChunkFogAlpha;
 uniform vec4 FogAndDistanceControl;

@@ -11,7 +11,7 @@ include/             bgfx and MinecraftRenderer.Materials headers
 source/
   Origin/
     Configuration.h  shader options (fog strength, ...)
-    functions/       reusable shader functions (Sky, Fog, Lighting, Common)
+    functions/       reusable shader functions (Core.h, Sky.h, World.h)
     pack_config.toml pack name, version, UUIDs and material list
   materials/         material sources and project.json (build profiles)
 tools/               build tool (setup, mats, pack)
@@ -63,31 +63,20 @@ python tools manifest --new-uuids        # generate new pack UUIDs (do this for 
 Reusable code lives in `source/Origin/functions/` and is shared by the materials:
 
 ```glsl
-#include <Origin/functions/Fog.h>
+#include <Origin/functions/World.h>
 
 diffuse.rgb = originApplyFog(diffuse.rgb, FogColor.rgb, v_fog.a);
 ```
 
 Options such as `ORIGIN_FOG_STRENGTH` are set in `source/Origin/Configuration.h`. The defaults match vanilla rendering.
 
-| File | Category | Functions |
-|------|----------|-----------|
-| `Common.h` | Core | constants, `originLuma`, `originSq`, `originRemap` |
-| `Noise.h` | Core | `originHash`, `originNoise`, `originFbm` |
-| `Color.h` | Core | gamma, saturation, contrast, tonemapping, `originGrade` |
-| `Sky.h` | Environment | sky gradient, horizon factor, sun glow |
-| `SunMoon.h` | Environment | sun and moon color |
-| `Stars.h` | Environment | star color, twinkle |
-| `Clouds.h` | Environment | cloud color, procedural density, shading |
-| `Weather.h` | Environment | rain and snow color and light |
-| `Fog.h` | Environment | fog blending, linear and exponential fog |
-| `Water.h` | World | waves, fresnel, depth tint, reflection |
-| `Wind.h` | World | plant and leaf sway |
-| `Lighting.h` | World | light map, ambient occlusion, point light |
-| `Actor.h` | Entities | overlay (hurt flash and similar) |
-| `Glint.h` | Entities | enchantment glint blend |
+| File | Contents |
+|------|----------|
+| `Core.h` | math helpers, procedural noise (`originNoise`, `originFbm`), color grading and tonemapping |
+| `Sky.h` | sky gradient and sun glow, sun and moon, stars, clouds |
+| `World.h` | fog, lighting, water, wind, weather, entity overlay and enchantment glint |
 
-Sky, SunMoon, Stars, Clouds, Weather, Fog, Lighting and Actor are already used by the materials. Color, Water and Wind are included and compiled but not applied yet, so rendering stays vanilla until you use them.
+Every function is already compiled into the materials. Most are applied (fog, lighting, sky, sun and moon, stars, clouds, weather, entity overlay). The color grading, water and wind functions are included but not applied yet, so rendering stays vanilla until you use them.
 
 ## GitHub Actions
 

@@ -2,10 +2,8 @@ $input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_f
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/DitherUtil.dragonh>
-#include <Origin/functions/Fog.h>
-#include <Origin/functions/Lighting.h>
-#include <Origin/functions/Color.h>
-#include <Origin/functions/Water.h>
+#include <Origin/functions/World.h>
+#include <Origin/functions/Core.h>
 
 uniform vec4 FogColor;
 uniform vec4 DitherParams;

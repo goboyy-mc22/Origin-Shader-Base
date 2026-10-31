@@ -1,8 +1,7 @@
 $input v_color0, v_fog, v_occlusionHeight, v_occlusionUV, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
-#include <Origin/functions/Fog.h>
-#include <Origin/functions/Weather.h>
+#include <Origin/functions/World.h>
 #include <MinecraftRenderer.Materials/FogUtil.dragonh>
 
 uniform vec4 OcclusionHeightOffset;

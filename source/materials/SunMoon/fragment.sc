@@ -1,7 +1,7 @@
 $input v_color0, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
-#include <Origin/functions/SunMoon.h>
+#include <Origin/functions/Sky.h>
 
 SAMPLER2D_AUTOREG(s_SunMoonTexture);
 uniform vec4 SunMoonColor;
