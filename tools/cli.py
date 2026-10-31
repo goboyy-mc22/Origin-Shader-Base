@@ -20,6 +20,8 @@ def main() -> None:
 
     pack_parser = subparsers.add_parser("pack", help="build the shader pack (.mcpack)")
     pack_parser.set_defaults(func=pack.run)
+    manifest_parser = subparsers.add_parser("manifest", help="print or write manifest.json, or renew pack UUIDs")
+    manifest_parser.set_defaults(func=pack.run_manifest)
     mats_parser = subparsers.add_parser("mats", help="compile materials only")
     mats_parser.set_defaults(func=build.run)
     setup_parser = subparsers.add_parser("setup", help="download shaderc and base materials")
@@ -32,8 +34,14 @@ def main() -> None:
     pack_parser.add_argument("-v", default="", help="patch version number, e.g. 5 builds x.y.5")
     pack_parser.add_argument("--no-zip", action="store_true", help="do not create the .mcpack archive")
 
+    manifest_parser.add_argument("-p", choices=PROFILES, default=default_profile, help="build profile")
+    manifest_parser.add_argument("-v", default="", help="patch version number, e.g. 5 builds x.y.5")
+    manifest_parser.add_argument("-o", default="", help="write the manifest to this file instead of printing it")
+    manifest_parser.add_argument("--new-uuids", action="store_true",
+                                 help="generate new pack and module UUIDs in pack_config.toml")
+
     mats_parser.add_argument("-m", default=[], nargs="+", help="materials to build, e.g. Sky RenderChunk")
-    mats_parser.add_argument("-s", default="", help="subpack define to compile with, e.g. NO_FOG")
+    mats_parser.add_argument("-s", default="", help="extra macro define to compile with, e.g. ORIGIN_DEBUG")
 
     setup_parser.add_argument("--reset", action="store_true", help="delete all downloaded data first")
     setup_parser.add_argument("--materials-version", default="",

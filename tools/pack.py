@@ -2,8 +2,10 @@
 
 import json
 import os
+import re
 import shutil
 import sys
+import uuid
 import zipfile
 
 from rich.console import Console
@@ -54,7 +56,6 @@ def load_pack_config(patch_version: str = "") -> dict:
     config.setdefault("description", "")
     config.setdefault("authors", [])
     config.setdefault("url", "")
-    config.setdefault("subpack", [])
 
     if patch_version:
         if not patch_version.isdigit():
@@ -63,10 +64,7 @@ def load_pack_config(patch_version: str = "") -> dict:
         config["version"][2] = int(patch_version)
 
     available = get_available_materials()
-    listed = list(config["materials"])
-    for subpack in config["subpack"]:
-        listed += subpack.get("materials", [])
-    for name in listed:
+    for name in config["materials"]:
         if name not in available:
             console.print(f"Error: material '{name}' from pack_config.toml does not exist.", style="bold red")
             raise SystemExit(1)
@@ -152,31 +150,6 @@ def run(args) -> None:
         console.print("Error: no .material.bin files were produced.", style="bold red")
         raise SystemExit(1)
 
-    subpacks = []
-    for subpack in config["subpack"]:
-        from lazurite.compiler.macro_define import MacroDefine
-
-        folder = subpack["define"].lower()
-        subpack_dir = os.path.join(pack_dir, "subpacks", folder)
-        os.makedirs(subpack_dir, exist_ok=True)
-        if subpack.get("materials"):
-            ok = compile_materials(
-                profile,
-                get_materials_path(subpack["materials"]),
-                os.path.join(subpack_dir, "renderer", "materials"),
-                [MacroDefine.from_string(subpack["define"].upper())],
-                strict=args.strict,
-            )
-            if not ok:
-                raise SystemExit(1)
-        subpacks.append({
-            "folder_name": folder,
-            "name": subpack.get("description", folder).strip(),
-            "memory_tier": 1,
-        })
-    if subpacks:
-        manifest["subpacks"] = subpacks
-
     with open(os.path.join(pack_dir, "manifest.json"), "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
     console.print("\n~ manifest.json written", style="bold")
@@ -188,6 +161,37 @@ def run(args) -> None:
     archive_path = os.path.join(BUILD_DIR, f"{slug}-{version}-{profile}.mcpack")
     create_archive(pack_dir, archive_path)
     console.print(f"[bold green]Pack ready[/] -> {os.path.relpath(archive_path)}")
+
+
+def run_manifest(args) -> None:
+    """`manifest` command: print or write the manifest.json for a profile, or renew the pack UUIDs."""
+    if args.new_uuids:
+        renew_uuids()
+        return
+
+    config = load_pack_config(args.v)
+    text = json.dumps(create_manifest(config, args.p), indent=2, ensure_ascii=False)
+    if args.o:
+        os.makedirs(os.path.dirname(os.path.abspath(args.o)), exist_ok=True)
+        with open(args.o, "w", encoding="utf-8") as f:
+            f.write(text + "\n")
+        console.print(f"manifest written -> {args.o}", markup=False)
+    else:
+        print(text)
+
+
+def renew_uuids() -> None:
+    """Replace the pack and module UUIDs in pack_config.toml with new random ones."""
+    with open(PACK_CONFIG_FILE, "r", encoding="utf-8") as f:
+        text = f.read()
+    for key in ("uuid", "module_uuid"):
+        text, count = re.subn(rf'^{key}\s*=\s*"[^"]*"', f'{key} = "{uuid.uuid4()}"', text, flags=re.M)
+        if count != 1:
+            console.print(f"Error: could not find '{key}' in pack_config.toml.", style="bold red")
+            raise SystemExit(1)
+    with open(PACK_CONFIG_FILE, "w", encoding="utf-8", newline="") as f:
+        f.write(text)
+    console.print("New UUIDs written to source/Origin/pack_config.toml", markup=False)
 
 
 if __name__ == "__main__":

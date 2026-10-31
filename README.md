@@ -9,7 +9,10 @@ A custom vanilla RenderDragon shader base for Minecraft Bedrock. It targets Andr
 assets/              pack_icon.png and other resource pack files
 include/             bgfx and MinecraftRenderer.Materials headers
 source/
-  Origin/            shader code and pack_config.toml
+  Origin/
+    Configuration.h  shader options (fog strength, ...)
+    functions/       reusable shader functions (Sky, Fog, Lighting, Common)
+    pack_config.toml pack name, version, UUIDs and material list
   materials/         material sources and project.json (build profiles)
 tools/               build tool (setup, mats, pack)
 build.sh, build.bat  launchers for the build tool
@@ -36,6 +39,8 @@ python tools setup                       # download shaderc and base materials (
 python tools pack -p android             # android | ios | windows | multiplatform
 python tools pack -p multiplatform -v 5  # patch version 5 -> v0.1.5
 python tools mats -p windows -m Sky      # compile selected materials only
+python tools manifest -p android         # print the generated manifest.json
+python tools manifest --new-uuids        # generate new pack UUIDs (do this for your own fork)
 ```
 
 `build.sh` (Linux, macOS, Termux) and `build.bat` (Windows) run `python tools` for you, for example `./build.sh pack -p android`.
@@ -45,12 +50,29 @@ python tools mats -p windows -m Sky      # compile selected materials only
 | `setup` | `--reset` delete downloaded data first, `--materials-version <tag>` use another serialized-materials release |
 | `mats`  | `-p <profile>`, `-m <materials...>`, `-s <define>`, `--strict` |
 | `pack`  | `-p <profile>`, `-v <patch>`, `--no-zip`, `--strict` |
+| `manifest` | `-p <profile>`, `-v <patch>`, `-o <file>` write to a file, `--new-uuids` renew the UUIDs |
 
-`--strict` turns compiler warnings into errors. The finished pack is written to `build/` as `origin-shader-base-<version>-<profile>.mcpack`. Pack name, version, UUIDs and materials are configured in `source/Origin/pack_config.toml`.
+`--strict` turns compiler warnings into errors. The finished pack is written to `build/` as `origin-shader-base-<version>-<profile>.mcpack`.
+
+## Pack manifest
+
+`manifest.json` is generated for every pack from `source/Origin/pack_config.toml` (name, description, version, minimum Minecraft version, UUIDs, authors and the material list). The pack is then zipped with the manifest at the archive root, which is what Minecraft expects of a `.mcpack`.
+
+## Shader functions
+
+Reusable code lives in `source/Origin/functions/` and is shared by the materials:
+
+```glsl
+#include <Origin/functions/Fog.h>
+
+diffuse.rgb = originApplyFog(diffuse.rgb, FogColor.rgb, v_fog.a);
+```
+
+Options such as `ORIGIN_FOG_STRENGTH` are set in `source/Origin/Configuration.h`. The defaults match vanilla rendering.
 
 ## GitHub Actions
 
-- **Build**: open *Actions → Build → Run workflow*, choose Android, iOS, Windows, Multi-platform or All, and download the `.mcpack` from the run's artifacts. The optional *subversion* input sets the patch version.
+- **Build**: open *Actions → Build → Run workflow*, choose Android, iOS, Windows, Multi-platform or All, and download the `.mcpack` from the run's artifacts. The optional *subversion* input sets the patch version. Enable *release* to also get a draft GitHub release with the `.mcpack` files attached as direct downloads.
 - **Build Check**: runs on every pull request and push to `main`. It only checks that all materials compile for all platforms. It packages and uploads nothing.
 
 Windows and Multi-platform builds run on a Windows runner because Direct3D shaders can only be compiled on Windows.

@@ -29,11 +29,3 @@ materials = [
     "SunMoon",
     "Weather",
 ]
-
-# Optional subpacks. Each one recompiles the listed materials with a macro define.
-# Subpacks are shown left to right, the right-most one is enabled by default.
-#
-# [[subpack]]
-# define = "NO_FOG"
-# materials = ["RenderChunk"]
-# description = "No fog effect"

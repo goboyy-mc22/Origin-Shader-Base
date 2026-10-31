@@ -2,6 +2,8 @@ $input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_f
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/DitherUtil.dragonh>
+#include <Origin/functions/Fog.h>
+#include <Origin/functions/Lighting.h>
 
 uniform vec4 FogColor;
 uniform vec4 DitherParams;
@@ -66,8 +68,8 @@ void main() {
     }
 #endif
 
-    diffuse.rgb *= texture2D(s_LightMapTexture, v_lightmapUV).rgb;
-    diffuse.rgb = mix(diffuse.rgb, FogColor.rgb, v_fog.a);
+    diffuse.rgb = originApplyLightmap(diffuse.rgb, texture2D(s_LightMapTexture, v_lightmapUV).rgb);
+    diffuse.rgb = originApplyFog(diffuse.rgb, FogColor.rgb, v_fog.a);
 
     gl_FragColor = diffuse;
 #endif
