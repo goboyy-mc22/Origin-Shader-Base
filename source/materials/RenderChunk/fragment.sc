@@ -67,6 +67,7 @@ void main() {
 #endif
 
     diffuse.rgb = shadeWithLightmap(diffuse.rgb, texture2D(s_LightMapTexture, v_lightmapUV).rgb);
+    diffuse.rgb += glowFromTexture(texture2DLod(s_MatTexture, v_texcoord0, 0.0));
 
 #if defined(TRANSPARENT) && !defined(SEASONS)
     if (v_color0.a < 0.95) {

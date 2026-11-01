@@ -44,6 +44,10 @@
 #define RAIN_FOG_HIGH  0.75
 #define GODRAY_STRENGTH 0.6   // fan rays at sunrise and sunset (0.0 = off)
 
+// ---- Glow ------------------------------------------------------------------
+
+#define GLOW_INTENSITY 1.0   // brightness of glowing texture pixels (alpha 252/255 and 253/255)
+
 // ---- Waves -----------------------------------------------------------------
 
 #define WAVE_RANGE         48.0   // distance in blocks where waves stop

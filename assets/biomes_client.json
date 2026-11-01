@@ -1,0 +1,7 @@
+{
+  "biomes": {
+    "the_end": {
+      "fog_identifier": "origin:fog_the_end"
+    }
+  }
+}

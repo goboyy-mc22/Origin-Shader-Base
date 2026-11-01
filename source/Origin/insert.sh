@@ -15,6 +15,7 @@
 #include <Origin/function/wave.h>
 #include <Origin/function/water.h>
 #include <Origin/function/lighting.h>
+#include <Origin/function/glow.h>
 #include <Origin/function/weather.h>
 #include <Origin/function/clouds.h>
 

@@ -94,6 +94,7 @@ Functions a material does not call are dropped by the compiler. Every function i
 | `fog.h` | `fogFade` (low/high range, rain, mist), `computeFog`, `blendFog`, `godRay` (fan rays at sunrise and sunset) |
 | `wave.h` | `waveFade`, `windStrength`, `plantSway`, `waterWave` |
 | `water.h` | `fresnel`, `shadeWater` |
+| `glow.h` | `glowFromTexture` (glowing pixels marked in the texture alpha) |
 | `lighting.h` | `shadeWithLightmap`, `blendOverlay` |
 | `weather.h` | `weatherLight` |
 | `clouds.h` | `cloudColor` |
@@ -111,6 +112,10 @@ Sky, EndSky and terrain fog use the same sky colors, so terrain blends into the 
 | Waves | `WAVE_RANGE`, `PLANT_SWAY_STRENGTH`, `WATER_WAVE_HEIGHT` |
 
 The sky, sun glow, God rays, plant sway and water waves have not been checked in game yet. Plant sway picks vertices from the tinted color and the upper half of the terrain atlas tile (assuming 32 tile rows), which can differ with resource packs.
+
+## Pack assets
+
+`assets/` is copied into every pack: `pack_icon.png`, plus `biomes_client.json`, `biomes/` and `fogs/` that give The End a fixed purple fog color (`#400040`), which `detectEnd` relies on. Block textures with glow are not included: to make a block glow, edit its texture so the glowing pixels have alpha 252/255 (full) or 253/255 (partial) and put it in `assets/textures/blocks/`.
 
 ## Build assets
 
