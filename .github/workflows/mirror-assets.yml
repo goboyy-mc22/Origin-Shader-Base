@@ -1,0 +1,44 @@
+name: Mirror build assets
+
+# Copies the external build dependencies (shaderc compilers and the serialized base materials)
+# into this repository's "build-assets" release, so builds do not depend on other repositories.
+
+on:
+  workflow_dispatch:
+    inputs:
+      materials_version:
+        description: serialized-materials tag to mirror
+        required: true
+        default: v26.60
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    name: Mirror assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download assets
+        env:
+          VERSION: ${{ inputs.materials_version }}
+        run: |
+          mkdir assets
+          cd assets
+          for name in win-x64.exe linux-x64 osx-x64 android-arm64 android-arm; do
+            curl -fsSL -o "shaderc-$name" "https://github.com/devendrn/newb-shader/releases/download/dev/shaderc-$name"
+          done
+          curl -fsSL -o "materials-$VERSION.zip" "https://github.com/mcpebd/serialized-materials/archive/refs/tags/$VERSION.zip"
+          ls -l
+
+      - name: Upload to the build-assets release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view build-assets -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create build-assets -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "Build assets" \
+              --notes "External build dependencies used by python tools setup: shaderc compilers and serialized base materials. Mirrored by the Mirror build assets workflow."
+          fi
+          gh release upload build-assets assets/* -R "$GITHUB_REPOSITORY" --clobber
