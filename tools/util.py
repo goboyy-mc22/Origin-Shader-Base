@@ -20,9 +20,10 @@ BUILD_DIR = os.path.join(ROOT_DIR, "build")
 
 PROFILES = ["android", "ios", "windows", "multiplatform"]
 
-# External build dependencies (downloaded by `setup`)
-SHADERC_URL_PREFIX = "https://github.com/devendrn/newb-shader/releases/download/dev/shaderc-"
-SERIALIZED_MATERIALS_REPO = "mcpebd/serialized-materials"
+# Build dependencies (downloaded by `setup` from this repository's "build-assets" release;
+# the Mirror build assets workflow puts them there)
+ASSETS_URL = "https://github.com/goboyy-mc22/Origin-Shader-Base/releases/download/build-assets/"
+SHADERC_URL_PREFIX = ASSETS_URL + "shaderc-"
 SERIALIZED_MATERIALS_VERSION = "v26.60"
 
 SHADERC_PATH = os.path.join(DATA_DIR, "shaderc.exe" if os.name == "nt" else "shaderc")

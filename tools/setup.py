@@ -11,7 +11,7 @@ from rich.progress import BarColumn, DownloadColumn, Progress, TextColumn, Trans
 from util import (
     BASE_MATERIALS_DIR,
     DATA_DIR,
-    SERIALIZED_MATERIALS_REPO,
+    ASSETS_URL,
     SERIALIZED_MATERIALS_VERSION,
     SHADERC_PATH,
     SHADERC_URL_PREFIX,
@@ -78,7 +78,7 @@ def _apply_termux_fix() -> None:
 
 def _download_base_materials(version: str) -> None:
     """Download serialized materials and keep only the ones this project builds."""
-    url = f"https://github.com/{SERIALIZED_MATERIALS_REPO}/archive/refs/tags/{version}.zip"
+    url = f"{ASSETS_URL}materials-{version}.zip"
     zip_path = os.path.join(DATA_DIR, "materials.zip")
     shutil.rmtree(BASE_MATERIALS_DIR, ignore_errors=True)
     os.makedirs(BASE_MATERIALS_DIR)

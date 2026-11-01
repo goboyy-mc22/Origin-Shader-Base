@@ -112,6 +112,10 @@ Sky, EndSky and terrain fog use the same sky colors, so terrain blends into the 
 
 The sky, sun glow, God rays, plant sway and water waves have not been checked in game yet. Plant sway picks vertices from the tinted color and the upper half of the terrain atlas tile (assuming 32 tile rows), which can differ with resource packs.
 
+## Build assets
+
+`python tools setup` downloads the shaderc compilers and the serialized base materials from this repository's `build-assets` release, so builds do not depend on other repositories. To update them (for example for a new `serialized-materials` tag), run *Actions → Mirror build assets* with the tag, then change `SERIALIZED_MATERIALS_VERSION` in `tools/util.py`.
+
 ## GitHub Actions
 
 - **Build**: open *Actions → Build → Run workflow*, choose Android, iOS, Windows, Multi-platform or All, and download the `.mcpack` from the run's artifacts. The optional *subversion* input sets the patch version. Enable *release* to also get a draft GitHub release with the `.mcpack` files attached as direct downloads.
