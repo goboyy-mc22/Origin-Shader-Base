@@ -108,7 +108,7 @@ Sky, EndSky and terrain fog use the same sky colors, so terrain blends into the 
 | Group | Settings |
 |-------|----------|
 | Sky colors | `DAY_*`, `NIGHT_*`, `DAWN_*` (sunrise and sunset), `RAIN_*`, `END_*` with zenith, horizon and edge colors |
-| Fog | `FOG_LOW`, `FOG_HIGH`, `GODRAY_STRENGTH` |
+| Fog | `FOG_STRENGTH` (0.1 subtle to 1.0 full), `GODRAY_STRENGTH` |
 | Waves | `WAVE_RANGE`, `PLANT_SWAY_STRENGTH`, `WATER_WAVE_HEIGHT` |
 
 The sky, sun glow, God rays, plant sway and water waves have not been checked in game yet. Plant sway picks vertices from the tinted color and the upper half of the terrain atlas tile (assuming 32 tile rows), which can differ with resource packs.

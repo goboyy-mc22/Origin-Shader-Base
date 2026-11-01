@@ -15,14 +15,12 @@ float fogFade(float relativeDist, Environment env, vec2 fogControl) {
 #ifdef NO_FOG
   return 0.0;
 #else
-  // rain pulls the fog range closer
-  float low = FOG_LOW * (1.0 - 0.7 * env.rain);
-  float high = FOG_HIGH * (1.0 - 0.3 * env.rain);
-  float fade = smoothstep(low, high, relativeDist);
+  // The game already moves the fog range closer during rain
+  float fade = smoothstep(fogControl.x, fogControl.y, relativeDist);
 
   // Thin mist close to the camera
   fade += (1.0 - fade) * 0.3 * (1.0 - exp(-relativeDist * relativeDist * 4.0));
-  return saturate(fade);
+  return FOG_STRENGTH * saturate(fade);
 #endif
 }
 
