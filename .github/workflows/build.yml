@@ -91,10 +91,11 @@ jobs:
           if [ -n "$SUBVERSION" ]; then args="-v $SUBVERSION"; fi
           python tools pack -p "${{ matrix.profile }}" --strict $args
 
-      - uses: actions/upload-artifact@v4
+      # archive: false uploads the .mcpack as is, so the download is a plain .mcpack (not a .zip around it)
+      - uses: actions/upload-artifact@v7
         with:
-          name: origin-shader-base-${{ matrix.profile }}
           path: build/*.mcpack
+          archive: false
           if-no-files-found: error
 
   release:

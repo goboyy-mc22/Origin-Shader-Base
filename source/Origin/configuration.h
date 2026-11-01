@@ -38,10 +38,8 @@
 
 // ---- Fog (distance as a fraction of the render distance) -------------------
 
-#define FOG_LOW        0.40   // fog starts here in clear weather
-#define FOG_HIGH       1.00   // fog is full here in clear weather
-#define RAIN_FOG_LOW   0.05   // same, during rain
-#define RAIN_FOG_HIGH  0.75
+#define FOG_LOW   0.1   // fog starts here (rain pulls the range closer automatically)
+#define FOG_HIGH  1.0   // fog is full here
 #define GODRAY_STRENGTH 0.6   // fan rays at sunrise and sunset (0.0 = off)
 
 // ---- Glow ------------------------------------------------------------------

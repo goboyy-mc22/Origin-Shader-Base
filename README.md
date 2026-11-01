@@ -108,7 +108,7 @@ Sky, EndSky and terrain fog use the same sky colors, so terrain blends into the 
 | Group | Settings |
 |-------|----------|
 | Sky colors | `DAY_*`, `NIGHT_*`, `DAWN_*` (sunrise and sunset), `RAIN_*`, `END_*` with zenith, horizon and edge colors |
-| Fog | `FOG_LOW`, `FOG_HIGH`, `RAIN_FOG_LOW`, `RAIN_FOG_HIGH`, `GODRAY_STRENGTH` |
+| Fog | `FOG_LOW`, `FOG_HIGH`, `GODRAY_STRENGTH` |
 | Waves | `WAVE_RANGE`, `PLANT_SWAY_STRENGTH`, `WATER_WAVE_HEIGHT` |
 
 The sky, sun glow, God rays, plant sway and water waves have not been checked in game yet. Plant sway picks vertices from the tinted color and the upper half of the terrain atlas tile (assuming 32 tile rows), which can differ with resource packs.
@@ -123,7 +123,7 @@ The sky, sun glow, God rays, plant sway and water waves have not been checked in
 
 ## GitHub Actions
 
-- **Build**: open *Actions → Build → Run workflow*, choose Android, iOS, Windows, Multi-platform or All, and download the `.mcpack` from the run's artifacts. The optional *subversion* input sets the patch version. Enable *release* to also get a draft GitHub release with the `.mcpack` files attached as direct downloads.
+- **Build**: open *Actions → Build → Run workflow*, choose Android, iOS, Windows, Multi-platform or All, and download the `.mcpack` from the run's artifacts (uploaded as is, so you get a plain `.mcpack` and not a zip around it). The optional *subversion* input sets the patch version. Enable *release* to also get a draft GitHub release with the `.mcpack` files attached as direct downloads.
 - **Build Check**: runs on every pull request and push to `main`. It builds the multi-platform pack with all subpacks without archiving, so it only checks that everything compiles. It uploads nothing.
 
 Windows and Multi-platform builds run on a Windows runner because Direct3D shaders can only be compiled on Windows.
