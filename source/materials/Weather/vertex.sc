@@ -8,7 +8,6 @@ $output v_color0, v_fog, v_occlusionHeight, v_occlusionUV, v_texcoord0, v_worldP
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/FogUtil.dragonh>
 #include <MinecraftRenderer.Materials/TAAUtil.dragonh>
-#include <Origin/insert.sh>
 
 uniform vec4 Dimensions;
 uniform vec4 FogAndDistanceControl;
@@ -56,7 +55,8 @@ void main() {
     vec2 occlusionUV = ((worldSpacePosition.xz + ViewPosition.xz) * (1.0 / 64.0)) + vec2_splat(0.5);
     float occlusionHeight = (worldSpacePosition.y + ViewPosition.y - 0.5) * (1.0 / 255.0);
 
-    vec4 fog = computeFogFromUniforms(position.z / FogAndDistanceControl.z, FogColor.rgb, FogAndDistanceControl.xyz);
+    float fogIntensity = calculateFogIntensity(position.z, FogAndDistanceControl.z, FogAndDistanceControl.x, FogAndDistanceControl.y);
+    vec4 fog = vec4(FogColor.rgb, fogIntensity);
 
     v_color0 = a_color0;
     v_fog = fog;

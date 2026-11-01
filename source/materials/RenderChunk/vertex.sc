@@ -7,7 +7,6 @@ $output v_clipPosition, v_color0, v_ditheringAndMaskTinting, v_fog, v_lightmapUV
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/TAAUtil.dragonh>
-#include <Origin/insert.sh>
 
 uniform vec4 RenderChunkFogAlpha;
 uniform vec4 FogAndDistanceControl;
@@ -34,6 +33,11 @@ void main() {
     color = a_color0;
 #endif
 
+    vec4 fogAndDist = FogAndDistanceControl;
+    if (MeshContext.x > 0.5) {
+        fogAndDist = vec4(0.99, 1.0, 100000.0, 100000.0);
+    }
+
     uvec2 uv0_16 = uvec2(round(a_texcoord0 * 65535.0));
     vec2 uv0 = vec2(float((uv0_16.x & 32767u) << uint(1)), float((uv0_16.y & 32767u) << uint(1))) * 1.525902189314365386962890625e-05;
     uv0.x += 3.0517578125e-05 * ((2.0 * float((uv0_16.x & 32768u) >> uint(15))) - 1.0);
@@ -48,38 +52,11 @@ void main() {
     float ditherY = float((uv1_16.y & 256u) != 0u ? 1.0 : 0.0);
     vec2 ditheringAndMaskTinting = vec2(ditherX, ditherY);
 
-    float t = ViewPositionAndTime.w;
-    Environment env = detectEnvironment(FogColor.rgb, FogAndDistanceControl.xyz);
-
-#if !defined(NO_WAVE)
-    float fade = waveFade(length(ViewPositionAndTime.xyz - worldPos));
-
-    #if defined(TRANSPARENT)
-    if (isWater(a_color0)) {
-        worldPos.y += waterWave(worldPos, t) * fade;
-    }
-    #endif
-
-    #if (defined(ALPHA_TEST) || defined(DEPTH_ONLY_ALPHA_TEST)) && !defined(RENDER_AS_BILLBOARDS)
-    bool tinted = isTinted(a_color0);
-    bool isLeaf = tinted && isBlockCorner(a_position);
-    bool isPlantTop = tinted && tileRowPosition(uv0) < 0.5;
-    if (isLeaf || isPlantTop) {
-        float strength = isLeaf ? 0.5 : 1.0;
-        worldPos += plantSway(worldPos, t, windStrength(t, env.rain), lightmapUV.y) * (fade * strength);
-    }
-    #endif
-#endif
-
     vec4 position = jitterVertexPosition(worldPos);
 
     float camDist = length(ViewPositionAndTime.xyz - worldPos);
-    float relativeDist = camDist / FogAndDistanceControl.z + RenderChunkFogAlpha.x;
-    vec4 fog = computeFog(relativeDist, env, FogAndDistanceControl.xyz);
-    fog.a = mix(fog.a, 1.0, min(godRay(env, worldPos, lightmapUV.y, relativeDist, t), 1.0));
-    if (MeshContext.x > 0.5) {
-        fog.a = 0.0;
-    }
+    float fogIntensity = clamp((((camDist / fogAndDist.z) + RenderChunkFogAlpha.x) - fogAndDist.x) / (fogAndDist.y - fogAndDist.x), 0.0, 1.0);
+    vec4 fog = vec4(FogColor.rgb, fogIntensity);
 
 #if defined(TRANSPARENT)
     if (a_color0.a < 0.95) {

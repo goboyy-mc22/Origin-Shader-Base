@@ -2,8 +2,8 @@ $input v_clipPosition, v_worldPosition, v_color0, v_ditheringAndMaskTinting, v_f
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/DitherUtil.dragonh>
-#include <Origin/insert.sh>
 
+uniform vec4 FogColor;
 uniform vec4 DitherParams;
 uniform vec4 DitherParams2[3];
 uniform vec4 ViewPositionAndTime;
@@ -66,17 +66,8 @@ void main() {
     }
 #endif
 
-    diffuse.rgb = shadeWithLightmap(diffuse.rgb, texture2D(s_LightMapTexture, v_lightmapUV).rgb);
-    diffuse.rgb += glowFromTexture(texture2DLod(s_MatTexture, v_texcoord0, 0.0));
-
-#if defined(TRANSPARENT) && !defined(SEASONS)
-    if (v_color0.a < 0.95) {
-        vec3 viewDir = normalize(v_worldPos - ViewPositionAndTime.xyz);
-        diffuse = shadeWater(diffuse, viewDir, v_fog.rgb);
-    }
-#endif
-
-    diffuse.rgb = blendFog(diffuse.rgb, v_fog.rgb, v_fog.a);
+    diffuse.rgb = diffuse.rgb * texture2D(s_LightMapTexture, v_lightmapUV).rgb;
+    diffuse.rgb = mix(diffuse.rgb, FogColor.rgb, v_fog.a);
 
     gl_FragColor = diffuse;
 #endif
