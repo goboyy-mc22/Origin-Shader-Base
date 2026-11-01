@@ -1,1 +1,83 @@
+name = "Origin Shader Base"
+version = [0, 1, 0]
+min_supported_mc_version = [1, 26, 50]
+description = '''
+§c%w
+§7- A base vanilla shader for Minecraft!
+%v
+§3https://github.com/goboyy-mc22/Origin-Shader-Base
+''' # %w = patch warning, %v = version
+authors = ["goboyy-mc22"]
+url = "https://github.com/goboyy-mc22/Origin-Shader-Base"
+uuid = "b4d6af79-2505-4186-bc2d-d86c24fdff94" # Use https://www.uuidgenerator.net/version4
+materials = ["Actor", "ActorGlint", "ActorMultiTexture", "Clouds", "EndSky", "ItemInHandColor", "ItemInHandColorGlint", "ItemInHandTextured", "RenderChunk", "Sky", "Stars", "SunMoon", "Weather"]
 
+[info]
+copyright = '''
+Copyright © 2026 %a
+
+Origin Shader Base is a vanilla-style shader base for Minecraft Bedrock (RenderDragon).
+Source code: https://github.com/goboyy-mc22/Origin-Shader-Base
+'''  # %a = authors
+credits = '''
+Newb Shader by devendrn (https://github.com/devendrn/newb-x-mcbe) was studied as a reference for the shader structure and build system.
+Compiled with Lazurite by veka0 (https://github.com/veka0/lazurite).
+'''
+
+# subpacks are arranged in left to right order
+# right-most subpack is enabled by default
+[[subpack]]
+define = "END_PLANET"
+materials = ["EndSky"]
+description = '''
+End sky with a distant planet
+'''
+
+[[subpack]]
+define = "END_NEBULA"
+materials = ["EndSky"]
+description = '''
+End sky with nebula
+'''
+
+[[subpack]]
+define = "GALAXY_STARS"
+materials = ["Sky"]
+description = '''
+Galaxy stars
+'''
+
+[[subpack]]
+define = "SHOOTING_STAR"
+materials = ["Sky"]
+description = '''
+Shooting stars
+'''
+
+[[subpack]]
+define = "NO_WAVE_NO_FOG"
+materials = ["RenderChunk"]
+description = '''
+No fog and wave effects
+'''
+
+[[subpack]]
+define = "NO_FOG"
+materials = ["RenderChunk"]
+description = '''
+No fog effect
+'''
+
+[[subpack]]
+define = "NO_WAVE"
+materials = ["RenderChunk"]
+description = '''
+No wave effects
+'''
+
+[[subpack]]
+define = "DEFAULT"
+materials = []
+description = '''
+Default
+'''

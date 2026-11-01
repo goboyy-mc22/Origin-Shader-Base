@@ -9,6 +9,7 @@ $output v_clipPosition, v_color0, v_fog, v_light, v_texcoord0, v_worldPos, v_gli
 #include <MinecraftRenderer.Materials/DynamicUtil.dragonh>
 #include <MinecraftRenderer.Materials/FogUtil.dragonh>
 #include <MinecraftRenderer.Materials/TAAUtil.dragonh>
+#include <Origin/insert.sh>
 #include <MinecraftRenderer.Materials/GlintUtil.dragonh>
 
 uniform vec4 FogControl;
@@ -44,8 +45,7 @@ void main() {
 
     vec4 position = jitterVertexPosition(worldPosition);
     float cameraDepth = position.z;
-    float fogIntensity = calculateFogIntensity(cameraDepth, FogControl.z, FogControl.x, FogControl.y);
-    vec4 fog = vec4(FogColor.rgb, fogIntensity);
+    vec4 fog = computeFogFromUniforms(cameraDepth / FogControl.z, FogColor.rgb, FogControl.xyz);
 
 #if defined(DEPTH_ONLY)
     v_color0 = vec4_splat(0.0);

@@ -1,0 +1,5 @@
+{
+  "uniform_overrides": {
+    "TimeOfDay": "BUILTIN_MinecraftTimeOfDay"
+  }
+}

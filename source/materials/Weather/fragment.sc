@@ -1,7 +1,7 @@
 $input v_color0, v_fog, v_occlusionHeight, v_occlusionUV, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
-#include <Origin/Origin.h>
+#include <Origin/insert.sh>
 #include <MinecraftRenderer.Materials/FogUtil.dragonh>
 
 uniform vec4 OcclusionHeightOffset;
@@ -46,8 +46,8 @@ void main() {
         float uvX = occlusionLuminance - (mixAmount * occlusionLuminance);
         vec2 lightingUV = vec2(uvX, 1.0);
         vec3 light = texture2D(s_LightingTexture, lightingUV).rgb;
-        diffuse.rgb = originWeatherLight(diffuse.rgb, light);
-        diffuse.rgb = originApplyFog(diffuse.rgb, v_fog.rgb, v_fog.a);
+        diffuse.rgb = weatherLight(diffuse.rgb, light);
+        diffuse.rgb = blendFog(diffuse.rgb, v_fog.rgb, v_fog.a);
     }
-    gl_FragColor = originWeatherColor(diffuse);
+    gl_FragColor = diffuse;
 }

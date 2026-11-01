@@ -10,12 +10,12 @@ assets/              pack_icon.png and other resource pack files
 include/             bgfx and MinecraftRenderer.Materials headers
 source/
   Origin/
-    Origin.h         single include for materials
-    Configuration.h  shader options (fog strength, ...)
-    functions/       shader functions, one file per topic
-    pack_config.toml pack name, version, UUIDs and material list
+    insert.sh        single include for materials
+    configuration.h  important values: sky colors, fog range, wave strength
+    function/        shader functions, one file per topic
+    pack_config.toml pack name, version, UUID, material list and subpacks (same format as Newb)
   materials/         material sources and project.json (build profiles)
-tools/               build tool (setup, mats, pack)
+tools/               build tool (setup, mats, pack, manifest)
 build.sh, build.bat  launchers for the build tool
 ```
 
@@ -41,7 +41,7 @@ python tools pack -p android             # android | ios | windows | multiplatfo
 python tools pack -p multiplatform -v 5  # patch version 5 -> v0.1.5
 python tools mats -p windows -m Sky      # compile selected materials only
 python tools manifest -p android         # print the generated manifest.json
-python tools manifest --new-uuids        # generate new pack UUIDs (do this for your own fork)
+python tools manifest --new-uuids        # generate a new pack UUID (do this for your own fork)
 ```
 
 `build.sh` (Linux, macOS, Termux) and `build.bat` (Windows) run `python tools` for you, for example `./build.sh pack -p android`.
@@ -51,65 +51,71 @@ python tools manifest --new-uuids        # generate new pack UUIDs (do this for 
 | `setup` | `--reset` delete downloaded data first, `--materials-version <tag>` use another serialized-materials release |
 | `mats`  | `-p <profile>`, `-m <materials...>`, `-s <define>`, `--strict` |
 | `pack`  | `-p <profile>`, `-v <patch>`, `--no-zip`, `--strict` |
-| `manifest` | `-p <profile>`, `-v <patch>`, `-o <file>` write to a file, `--new-uuids` renew the UUIDs |
+| `manifest` | `-p <profile>`, `-v <patch>`, `-o <file>` write to a file, `--new-uuids` renew the pack UUID |
 
 `--strict` turns compiler warnings into errors. The finished pack is written to `build/` as `origin-shader-base-<version>-<profile>.mcpack`.
 
-## Pack manifest
+## Pack manifest and subpacks
 
-`manifest.json` is generated for every pack from `source/Origin/pack_config.toml` (name, description, version, minimum Minecraft version, UUIDs, authors and the material list). The pack is then zipped with the manifest at the archive root, which is what Minecraft expects of a `.mcpack`.
+`manifest.json` is generated for every pack from `source/Origin/pack_config.toml`, which uses the same format as Newb's: name, version, minimum Minecraft version, description (`%w` = loader notice, `%v` = version), authors, url, `uuid`, `materials`, an `[info]` table (copyright and credits, written to `COPYRIGHT.txt` and `CREDITS.txt`) and `[[subpack]]` entries. The resource module UUID is derived from `uuid`. The pack is zipped with the manifest at the archive root, which is what Minecraft expects of a `.mcpack`.
+
+Each `[[subpack]]` recompiles its `materials` with `define` set as a macro. They are listed left to right in the game, and the right-most one (`DEFAULT`) is enabled by default.
+
+| Subpack (define) | Materials | Effect |
+|------------------|-----------|--------|
+| `NO_WAVE` | RenderChunk | no plant sway and water waves |
+| `NO_FOG` | RenderChunk | no terrain fog and god rays |
+| `NO_WAVE_NO_FOG` | RenderChunk | both of the above |
+| `SHOOTING_STAR` | Sky | shooting stars |
+| `GALAXY_STARS` | Sky | dense stars and a milky way band |
+| `END_NEBULA` | EndSky | nebula in The End sky |
+| `END_PLANET` | EndSky | distant planet in The End sky |
+| `DEFAULT` | none | default look |
 
 ## Shader functions
 
-Reusable code lives in `source/Origin/functions/`, one file per topic. Materials include everything through a single header:
+Reusable code lives in `source/Origin/function/`, one file per topic, and materials include all of it through a single header:
 
 ```glsl
-#include <Origin/Origin.h>
+#include <Origin/insert.sh>
 
-diffuse.rgb = originApplyFog(diffuse.rgb, FogColor.rgb, v_fog.a);
+diffuse.rgb = blendFog(diffuse.rgb, v_fog.rgb, v_fog.a);
 ```
 
-Unused functions are removed by the shader compiler, so including everything costs nothing. Options such as `ORIGIN_FOG_STRENGTH` are set in `source/Origin/Configuration.h`, and the defaults match vanilla rendering.
+Functions a material does not call are dropped by the compiler. Every function in the library is called by at least one material.
 
 | File | Contents |
 |------|----------|
-| `Common.h` | constants, `originLuma`, `originSq`, `originRemap` |
-| `Noise.h` | `originHash`, `originNoise`, `originFbm` |
-| `Color.h` | gamma conversion, saturation, contrast, tonemapping, `originGrade` |
-| `Sky.h` | three-band sky color (zenith, horizon, edge), horizon and sun glow, sun and moon, stars |
-| `Clouds.h` | cloud color, procedural density, shading |
-| `Fog.h` | fog blending, linear and exponential fog |
-| `Lighting.h` | light map, ambient occlusion, point light, entity overlay, enchantment glint |
-| `Water.h` | fresnel, depth tint, reflection |
-| `Wave.h` | water waves, leaf sway and the checks that pick which vertices move |
-| `Weather.h` | rain and snow color and light |
+| `common.h` | `PI`, `luminance`, `rotation2d` |
+| `noise.h` | `hash31`, `noise3d` |
+| `coloring.h` | `tonemap` |
+| `detection.h` | `Environment`, rain, day, sunrise/sunset, underwater, Nether and End detection, sun and moon direction, water/tint/leaf vertex checks |
+| `sky.h` | sky colors (day, night, sunrise/sunset, rain, underwater, The End), `renderSky`, `renderEndSky`, shooting star, galaxy stars, End nebula and planet, sun/moon and star colors |
+| `fog.h` | `fogFade` (low/high range, rain, mist), `computeFog`, `blendFog`, `godRay` (fan rays at sunrise and sunset) |
+| `wave.h` | `waveFade`, `windStrength`, `plantSway`, `waterWave` |
+| `water.h` | `fresnel`, `shadeWater` |
+| `lighting.h` | `shadeWithLightmap`, `blendOverlay` |
+| `weather.h` | `weatherLight` |
+| `clouds.h` | `cloudColor` |
 
-Every function is compiled into the materials. Sky, fog, lighting, sun and moon, stars, clouds, weather and entity overlay are applied already. Water waves and leaf sway are wired into `RenderChunk` but switched off by default. The color grading and water shading functions are not applied yet. With the defaults, rendering is vanilla.
+Sky, EndSky and terrain fog use the same sky colors, so terrain blends into the sky at the horizon. The Sky material is drawn as a full screen quad and needs the `TimeOfDay` uniform, which is added with `source/materials/Sky/material.json`.
 
 ## Configuration
 
-All settings live in `source/Origin/Configuration.h`:
+`source/Origin/configuration.h` only holds the important values:
 
 | Group | Settings |
 |-------|----------|
-| Sky | `ORIGIN_SKY_ZENITH_TINT`, `ORIGIN_SKY_HORIZON_TINT`, `ORIGIN_SKY_EDGE_TINT`, `ORIGIN_SKY_HORIZON_POSITION`, sun/moon and star brightness |
-| Fog | `ORIGIN_FOG_STRENGTH`, `ORIGIN_FOG_TINT` |
-| Clouds | `ORIGIN_CLOUD_TINT`, `ORIGIN_CLOUD_OPACITY` |
-| Lighting | `ORIGIN_LIGHT_TINT` |
-| Weather | `ORIGIN_RAIN_OPACITY` |
-| Water waves | `ORIGIN_ENABLE_WATER_WAVES`, `ORIGIN_WATER_WAVE_HEIGHT`, `ORIGIN_WATER_WAVE_SPEED`, `ORIGIN_WATER_WAVE_SCALE` |
-| Leaf sway | `ORIGIN_ENABLE_LEAF_SWAY`, `ORIGIN_LEAF_SWAY_STRENGTH`, `ORIGIN_LEAF_SWAY_SPEED` |
-| Distance | `ORIGIN_WAVE_RANGE` (waves and sway fade out at this distance) |
-| Grading | `ORIGIN_EXPOSURE`, `ORIGIN_SATURATION`, `ORIGIN_CONTRAST` |
+| Sky colors | `DAY_*`, `NIGHT_*`, `DAWN_*` (sunrise and sunset), `RAIN_*`, `END_*` with zenith, horizon and edge colors |
+| Fog | `FOG_LOW`, `FOG_HIGH`, `RAIN_FOG_LOW`, `RAIN_FOG_HIGH`, `GODRAY_STRENGTH` |
+| Waves | `WAVE_RANGE`, `PLANT_SWAY_STRENGTH`, `WATER_WAVE_HEIGHT` |
 
-Colors are tints applied on top of the colors the game provides, so `vec3(1.0, 1.0, 1.0)` means unchanged. To enable water waves or leaf sway, remove the `//` in front of the matching `#define`. You can also try them without editing the file: `python tools mats -p android -s ORIGIN_ENABLE_WATER_WAVES ORIGIN_ENABLE_LEAF_SWAY`.
-
-Leaf sway moves vertices of full tinted cubes in the alpha-tested pass (tree leaves). Leaves without a biome tint do not sway. Water waves move vertices of translucent water. Both rely on checks in `Wave.h` that are not tested in game yet.
+The sky, sun glow, God rays, plant sway and water waves have not been checked in game yet. Plant sway picks vertices from the tinted color and the upper half of the terrain atlas tile (assuming 32 tile rows), which can differ with resource packs.
 
 ## GitHub Actions
 
 - **Build**: open *Actions → Build → Run workflow*, choose Android, iOS, Windows, Multi-platform or All, and download the `.mcpack` from the run's artifacts. The optional *subversion* input sets the patch version. Enable *release* to also get a draft GitHub release with the `.mcpack` files attached as direct downloads.
-- **Build Check**: runs on every pull request and push to `main`. It only checks that all materials compile for all platforms. It packages and uploads nothing.
+- **Build Check**: runs on every pull request and push to `main`. It builds the multi-platform pack with all subpacks without archiving, so it only checks that everything compiles. It uploads nothing.
 
 Windows and Multi-platform builds run on a Windows runner because Direct3D shaders can only be compiled on Windows.
 

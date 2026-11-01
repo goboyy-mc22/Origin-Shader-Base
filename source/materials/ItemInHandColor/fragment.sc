@@ -1,7 +1,7 @@
 $input v_clipPosition, v_color0, v_fog, v_light, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
-#include <Origin/Origin.h>
+#include <Origin/insert.sh>
 #include <MinecraftRenderer.Materials/DynamicUtil.dragonh>
 #include <MinecraftRenderer.Materials/FogUtil.dragonh>
 #include <MinecraftRenderer.Materials/DitherUtil.dragonh>
@@ -25,11 +25,11 @@ void main() {
 #if defined(MULTI_COLOR_TINT)
     vec2 colorMask = tinted.rg;
     vec3 multiTint = mix(tinted.r * ChangeColor.rgb, tinted.g * MultiplicativeTintColor.rgb, ceil(colorMask.g));
-    albedo.rgb = originApplyOverlay(multiTint, OverlayColor) * v_light.rgb;
+    albedo.rgb = blendOverlay(multiTint, OverlayColor) * v_light.rgb;
 #else
     vec4 baseTint = vec4(tinted, 1.0);
     vec3 singleTint = mix(baseTint, baseTint * ChangeColor, albedo.a).rgb;
-    albedo.rgb = originApplyOverlay(singleTint, OverlayColor) * v_light.rgb;
+    albedo.rgb = blendOverlay(singleTint, OverlayColor) * v_light.rgb;
 #endif
 
     bool ditherDiscard = false;
@@ -48,7 +48,7 @@ void main() {
     }
 #endif
 
-    albedo.rgb = originApplyFog(albedo.rgb, v_fog.rgb, v_fog.a);
+    albedo.rgb = blendFog(albedo.rgb, v_fog.rgb, v_fog.a);
     gl_FragColor = albedo;
 #endif
 }

@@ -1,7 +1,7 @@
 name: Build Check
 
-# Verifies that every material compiles for all platforms (Android, iOS and Windows),
-# once with the default options and once with every optional effect enabled.
+# Verifies that every material (default and every subpack) compiles for all platforms
+# (Android, iOS and Windows) through the multi-platform profile.
 # Nothing is packaged or uploaded.
 
 on:
@@ -40,8 +40,5 @@ jobs:
       - name: Setup build tools
         run: python tools setup
 
-      - name: Compile materials
-        run: python tools mats -p multiplatform --strict
-
-      - name: Compile materials with all effects enabled
-        run: python tools mats -p multiplatform --strict -s ORIGIN_ENABLE_WATER_WAVES ORIGIN_ENABLE_LEAF_SWAY
+      - name: Compile pack (default and all subpacks)
+        run: python tools pack -p multiplatform --no-zip --strict

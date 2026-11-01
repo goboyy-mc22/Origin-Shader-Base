@@ -1,27 +1,34 @@
-$input a_color0, a_position, a_texcoord0
-#ifdef INSTANCING
-    $input i_data1, i_data2, i_data3
+#ifndef INSTANCING
+    $input a_color0, a_position
+    $output v_worldPos, v_skyState
 #endif
-
-$output v_color0, v_texcoord0, v_worldPos
 
 #include <bgfx_shader.sh>
-#include <Origin/Origin.h>
 
-uniform vec4 SkyColor;
-uniform vec4 FogColor;
+#ifndef INSTANCING
+    #include <Origin/insert.sh>
 
-void main() {
-    vec3 worldPosition;
-#ifdef INSTANCING
-    mat4 model = mtxFromCols(i_data1, i_data2, i_data3, vec4(0.0, 0.0, 0.0, 1.0));
-    worldPosition = instMul(model, vec4(a_position, 1.0)).xyz;
-#else
-    worldPosition = mul(u_model[0], vec4(a_position, 1.0)).xyz;
+    uniform vec4 FogColor;
+    uniform vec4 FogAndDistanceControl;
 #endif
 
-    v_color0 = originSkyGradient(SkyColor, FogColor, a_color0.x);
-    v_texcoord0 = a_texcoord0;
-    v_worldPos = worldPosition;
-    gl_Position = mul(u_viewProj, vec4(worldPosition, 1.0));
+void main() {
+#ifndef INSTANCING
+    // x: underwater, y: rain, z: day, w: sunrise/sunset
+    v_skyState = vec4(
+        float(detectUnderwater(FogColor.rgb, FogAndDistanceControl.xy)),
+        detectRain(FogAndDistanceControl.xyz),
+        detectDay(FogColor.rgb),
+        detectDawn(FogColor.rgb)
+    );
+
+    // The sky is drawn as a full screen quad; the view direction is rebuilt per pixel.
+    vec4 pos = vec4(a_position.xzy, 1.0);
+    pos.xy = 2.0 * clamp(pos.xy, -0.5, 0.5);
+    v_worldPos = mul(u_invViewProj, pos).xyz;
+
+    gl_Position = pos;
+#else
+    gl_Position = vec4(0.0, 0.0, 0.0, 0.0);
+#endif
 }
